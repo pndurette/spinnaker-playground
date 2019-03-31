@@ -180,7 +180,9 @@ kubectl port-forward --namespace ${SPIN_NAMESPACE} $DECK_POD 9000
 
 #### Spinnaker API
 
-In a new terminal window, port-forward the Spinnaker API (Gate, port 8084). **NB:** Only do this if you plan to use the `spin` CLI
+In a new terminal window, port-forward the Spinnaker API (Gate, port 8084).
+
+**NB:** Only do this if you plan to use the `spin` CLI
 
 ```bash
 export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
