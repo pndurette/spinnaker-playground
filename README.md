@@ -35,6 +35,8 @@ brew cask install multipass
 
 If you're not using Homebrew, see [`multipass` readme](https://github.com/CanonicalLtd/multipass) for alternative installation methods
 
+
+
 ### Create Virtual Machine
 
 ```bash
@@ -44,11 +46,15 @@ multipass launch --name k3s-spin --cpus 4 --mem 8G --disk 20G
 
 **Hint:** Monitor processes and resources of your VM with `htop`: `multipass exec k3s-spin -- sh -c "sudo snap install htop"` then (in a new shell) `multipass exec k3s-spin -- sh -c "htop"`
 
+
+
 ### Install k3s
 
 ```
 multipass exec k3s-spin -- sh -c "curl -sfL https://get.k3s.io/ | sh -"
 ```
+
+
 
 ### Install and configure `kubectl`
 
@@ -136,13 +142,56 @@ EOF
 
 * A Job (`job.batch/spinnaker-install-using-ha`) to bootstrap the rest of the installation;
 * Services: `service/spinnaker-minio`, `service/spinnaker-redis-master`, `service/spinnaker-spinnaker-halyard`, respectively: an AWS S3-compatible block storage (for storing config), a cache server (for caching infrastructure), and the Spinaker configuration tool;
-* After some time: all of the Spinnaker microservices components as Services, i.e. [Clouddriver](https://github.com/spinnaker/clouddriver), [Orca](https://github.com/spinnaker/orca), [Deck](https://github.com/spinnaker/deck), [Igor](https://github.com/spinnaker/igor), [Gate](https://github.com/spinnaker/gate), [Echo](https://github.com/spinnaker/echo), [Font50](https://github.com/spinnaker/front50), [Rosco](https://github.com/spinnaker/rosco)..
+* After some time: all of the Spinnaker microservices components as Services, i.e. [Clouddriver](https://github.com/spinnaker/clouddriver), [Orca](https://github.com/spinnaker/orca), [Deck](https://github.com/spinnaker/deck), [Igor](https://github.com/spinnaker/igor), [Gate](https://github.com/spinnaker/gate), [Echo](https://github.com/spinnaker/echo), [Font50](https://github.com/spinnaker/front50), [Rosco](https://github.com/spinnaker/rosco)..  These take some time to all report as Ready too as many depend on others.
 
-**<u>Caveat / Help / My Spinnaker install dies</u>:** Sometimes Minio and Redis will die and go away (possibly because of timeouts), if this happens, delete the helm chart resource and add it again:
 
-`kubectl delete helmcharts/spinnaker --namespace kube-system`
 
-Then re-run the last step above.
+**<u>Caveat / Help / My Spinnaker install dies</u>:**
+
+This is a very low-resource install of Spinnaker. Running it fine, but installing it does create a surge that can results in some timeouts.
+
+* **Sometimes Minio and Redis Services will die** and go away, if this happens, delete the helm chart resource and add it again:
+
+  `kubectl delete helmcharts/spinnaker --namespace kube-system`
+
+  Then re-run the last step above.
+
+* **Some Spinnaker microservices might `CrashLoopBackOff`** (same reason as above): It should fix itself with time. There's a lot going on and most component depends on others, but the Kubernetes scheduler decides the order with which to create them.
+
+* Upon inspecting their logs, **some Spinnaker microservices might be stuck in error loops** (especially after most other components are up): kill the pod (after looking it up using `kubectl get all --namespace $SPIN_NAMESPACE` . The deployment will replace it.
+  e.g.: ` kubectl delete pod/spin-gate-6778864f66-qjqlt --namespace $SPIN_NAMESPACE`
+
+
+
+### Connect to your Spinnaker
+
+#### Spinnaker UI
+
+In a new terminal window, port-forward the Spinnaker UI (Deck, port 9000)
+
+```bash
+export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
+export SPIN_NAMESPACE='spin-playground'
+
+export DECK_POD=$(kubectl get pods --namespace ${SPIN_NAMESPACE} -l "cluster=spin-deck" -o jsonpath="{.items[0].metadata.name}")
+
+kubectl port-forward --namespace ${SPIN_NAMESPACE} $DECK_POD 9000
+```
+
+#### Spinnaker API
+
+In a new terminal window, port-forward the Spinnaker API (Gate, port 8084). **NB:** Only do this if you plan to use the `spin` CLI
+
+```bash
+export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
+export SPIN_NAMESPACE='spin-playground'
+
+export GATE_POD=$(kubectl get pods --namespace ${SPIN_NAMESPACE} -l "cluster=spin-gate" -o jsonpath="{.items[0].metadata.name}")
+
+kubectl port-forward --namespace ${SPIN_NAMESPACE} $GATE_POD 8084
+```
+
+
 
 ---
 
@@ -150,9 +199,9 @@ Then re-run the last step above.
 
 ## Cleanup
 
-### Remove Spinnaker from Kubernetes
+### Remove Spinnaker from k3s
 
-To remove any trace from Spinnaker from k3s, just delete the namespace it was installed in and the HelmChart resource it was installed with. This can take a while as Kubernetes does a clean removal.
+To remove any trace of Spinnaker from k3s, just delete the namespace it was installed in and the HelmChart resource it was installed with. This can take a while as Kubernetes does a clean removal.
 
 ```bash
 export SPIN_NAMESPACE='spin-playground'
@@ -171,3 +220,14 @@ multipass purge
 
 
 
+## References
+
+https://medium.com/@zhimin.wen/running-k3s-with-multipass-on-mac-fbd559966f7c
+
+https://medium.com/@zhimin.wen/deploy-jenkins-helm-chart-on-k3s-running-on-macbook-484bb7ba588f
+
+
+
+## License
+
+[The MIT License (MIT)](LICENSE) Copyright © 2019 Pierre Nicolas Durette
