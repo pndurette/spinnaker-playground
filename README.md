@@ -165,9 +165,11 @@ This is a very low-resource install of Spinnaker. Running it fine, but installin
 
 ### Connect to your Spinnaker
 
+**NB:** Only proceed once `kubectl get all --namespace $SPIN_NAMESPACE` show all deployments in Ready state!
+
 #### Spinnaker UI
 
-In a new terminal window, port-forward the Spinnaker UI (Deck, port 9000)
+In a new terminal window, port-forward the Spinnaker UI (Deck, port 9000).
 
 ```bash
 export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
@@ -178,11 +180,11 @@ export DECK_POD=$(kubectl get pods --namespace ${SPIN_NAMESPACE} -l "cluster=spi
 kubectl port-forward --namespace ${SPIN_NAMESPACE} $DECK_POD 9000
 ```
 
+Head to http://localhost:9000. It's up! 🎉
+
 #### Spinnaker API
 
 In a new terminal window, port-forward the Spinnaker API (Gate, port 8084).
-
-**NB:** Only do this if you plan to use the `spin` CLI
 
 ```bash
 export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
@@ -193,7 +195,7 @@ export GATE_POD=$(kubectl get pods --namespace ${SPIN_NAMESPACE} -l "cluster=spi
 kubectl port-forward --namespace ${SPIN_NAMESPACE} $GATE_POD 8084
 ```
 
-
+**Hint:** You only need to do this if you plan to use the `spin` CLI.
 
 ---
 
