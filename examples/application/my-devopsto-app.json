@@ -1,0 +1,6 @@
+{
+    "name": "my-devopsto-app",
+    "email": "webmaster@aol.com",
+    "description": "An amazing app for DevOpsTO",
+    "cloudProviders": "kubernetes"
+}

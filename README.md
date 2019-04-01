@@ -13,11 +13,15 @@ This will guide you to:
 * Setup a local lightweight Kubernetes, using:
   * Canonical [`multipass`](https://github.com/CanonicalLtd/multipass) (Ubuntu virtual machine manager)
   * Rancher [k3s](https://github.com/rancher/k3s) (lighweight Kubernetes)
-* Install Spinnaker (via the [stable/spinnaker](https://github.com/helm/charts/tree/master/stable/spinnaker) Helm chart), and:
+* Installing Spinnaker (via the [stable/spinnaker](https://github.com/helm/charts/tree/master/stable/spinnaker) Helm chart)
+
+And optiinally:
+
+* Installing Spinnaker Tools:
   * [Halyard](https://www.spinnaker.io/reference/halyard/) (`hal`), the Spinnaker CLI config tool
   * [`spin`](https://www.spinnaker.io/guides/spin/), the Spinnaker CLI app/pipeline mangement tool
-* Set up an Application and Pipelines
-* Cleanup
+* Setup an example Application and Pipelines
+* Cleaning up
 
 
 
@@ -25,7 +29,7 @@ This will guide you to:
 
 
 
-## Local Kubernetes
+## Setup local Kubernetes
 
 ### Install `multipass`
 
@@ -34,8 +38,6 @@ brew cask install multipass
 ```
 
 If you're not using Homebrew, see [`multipass` readme](https://github.com/CanonicalLtd/multipass) for alternative installation methods
-
-
 
 ### Create Virtual Machine
 
@@ -46,15 +48,11 @@ multipass launch --name k3s-spin --cpus 4 --mem 8G --disk 20G
 
 **Hint:** Monitor processes and resources of your VM with `htop`: `multipass exec k3s-spin -- sh -c "sudo snap install htop"` then (in a new shell) `multipass exec k3s-spin -- sh -c "htop"`
 
-
-
 ### Install k3s
 
 ```
 multipass exec k3s-spin -- sh -c "curl -sfL https://get.k3s.io/ | sh -"
 ```
-
-
 
 ### Install and configure `kubectl`
 
@@ -96,15 +94,11 @@ rm local-path-storage.yaml
 
 **Hint:** Test your Kubernetes connection with `kubectl get all --all-namespaces` (you should get a list of Kubernetes resources). 
 
-
-
 ---
 
 
 
-## Spinnaker
-
-### Install Spinnaker
+## Installing Spinnaker
 
 ```bash
 # The Kubernetes namespace we'll use throughout
@@ -144,11 +138,9 @@ EOF
 * Services: `service/spinnaker-minio`, `service/spinnaker-redis-master`, `service/spinnaker-spinnaker-halyard`, respectively: an AWS S3-compatible block storage (for storing config), a cache server (for caching infrastructure), and the Spinaker configuration tool;
 * After some time: all of the Spinnaker microservices components as Services, i.e. [Clouddriver](https://github.com/spinnaker/clouddriver), [Orca](https://github.com/spinnaker/orca), [Deck](https://github.com/spinnaker/deck), [Igor](https://github.com/spinnaker/igor), [Gate](https://github.com/spinnaker/gate), [Echo](https://github.com/spinnaker/echo), [Font50](https://github.com/spinnaker/front50), [Rosco](https://github.com/spinnaker/rosco)..  These take some time to all report as Ready too as many depend on others.
 
-
-
 **<u>Caveat / Help / My Spinnaker install dies</u>:**
 
-This is a very low-resource install of Spinnaker. Running it fine, but installing it does create a surge that can results in some timeouts.
+This is a very low-resource install of Spinnaker. Running it is fine, but installing it first does take a toll that can result in some timeouts.
 
 * **Sometimes Minio and Redis Services will die** and go away, if this happens, delete the helm chart resource and add it again:
 
@@ -195,13 +187,57 @@ export GATE_POD=$(kubectl get pods --namespace ${SPIN_NAMESPACE} -l "cluster=spi
 kubectl port-forward --namespace ${SPIN_NAMESPACE} $GATE_POD 8084
 ```
 
-**Hint:** You only need to do this if you plan to use the `spin` CLI.
+**Hint:** You only need to do this if you plan to use the `hal` or `spin` CLIs.
 
 ---
 
+## Install Spinnaker Tools
 
+### Halyard (`hal`) CLI
 
-## Cleanup
+Follow the [official instructions](https://www.spinnaker.io/setup/install/halyard/#install-halyard-on-docker) (Docker method recommended).
+
+`hal` is the CLI tool used to configure and managing Spinnaker, for example:
+
+* Updating Spinnaker;
+* Connecting to a CI engine like Jenkins or Travis;
+* Adding a private Docker registry;
+* Connecting Spinnaker to a cloud provider such as AWS;
+* Backing up and restoring configuration;
+* ... and much more: [command reference](https://www.spinnaker.io/reference/halyard/commands).
+
+**NB:** This is optional. The installation used in this playground is self-contained and already adds the current Kubernetes instance as a provider.
+
+**Hint:** For more advanced installation on Kubernetes, use [helm chart values overrides](https://github.com/helm/charts/tree/master/stable/spinnaker). Providers and more can be configured directly on install.
+
+**Hint:** Once you're in the halyard container, any command (e.g. `hal config list`) will let you know your `hal` is working correctly by providing a successful response.
+
+### `spin` CLI
+
+Follow the [official instructions](https://www.spinnaker.io/guides/spin/) (installation and usage). 
+
+**NB:** No need to configure `spin` here. By default, `spin` will look for the Spinnaker API at http://localhost:8084, which is what we have set up.
+
+`spin` is the CLI tool used specifically to manage:
+
+* Applications
+* Pipelines
+* Pipeline Templates
+
+## Setup an example Application and Pipelines
+
+### Creating the application
+
+```bash
+spin application save --file examples/application/my-devopsto-app.json
+```
+
+**Hint:** Applications can also be created by:
+
+* Passing attributes directly the attributes to `spin application save`
+* In the UI, Applications > Actions > Create Application
+
+## Cleaning up
 
 ### Remove Spinnaker from k3s
 
