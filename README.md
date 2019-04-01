@@ -15,7 +15,7 @@ This will guide you to:
   * Rancher [k3s](https://github.com/rancher/k3s) (lighweight Kubernetes)
 * Installing Spinnaker (via the [stable/spinnaker](https://github.com/helm/charts/tree/master/stable/spinnaker) Helm chart)
 
-And optiinally:
+And optinally:
 
 * Installing Spinnaker Tools:
   * [Halyard](https://www.spinnaker.io/reference/halyard/) (`hal`), the Spinnaker CLI config tool
@@ -157,7 +157,7 @@ This is a very low-resource install of Spinnaker. Running it is fine, but instal
 
 ### Connect to your Spinnaker
 
-**NB:** Only proceed once `kubectl get all --namespace $SPIN_NAMESPACE` show all deployments in Ready state!
+**NB:** Only proceed once `kubectl get all --namespace $SPIN_NAMESPACE` shows all deployments in Ready state!
 
 #### Spinnaker UI
 
