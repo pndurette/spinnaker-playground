@@ -218,7 +218,7 @@ Follow the [official instructions](https://www.spinnaker.io/guides/spin/) (insta
 
 **NB:** No need to configure `spin` here. By default, `spin` will look for the Spinnaker API at http://localhost:8084, which is what we have set up.
 
-`spin` is the CLI tool used specifically to manage:
+`spin` is the CLI tool used to manage:
 
 * Applications
 * Pipelines
