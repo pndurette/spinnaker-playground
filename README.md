@@ -237,6 +237,12 @@ spin application save --file examples/application/my-devopsto-app.json
 * Passing attributes directly the attributes to `spin application save`
 * In the UI, Applications > Actions > Create Application
 
+### Saving a sample pipeline
+
+```bash
+spin pipeline save --file examples/application/wait_pipeline.json
+```
+
 ## Cleaning up
 
 ### Remove Spinnaker from k3s
@@ -257,6 +263,11 @@ multipass purge
 ```
 
 ### Remove `hal`, `spin`
+
+```bash
+docker rm halyard # hal
+rm <path to spin> # spin
+```
 
 
 

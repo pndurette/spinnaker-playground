@@ -1,0 +1,40 @@
+{
+  "name": "Ask and Wait",
+  "application": "my-devopsto-app",
+  "expectedArtifacts": [],
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "anonymous",
+  "limitConcurrent": true,
+  "parameterConfig": [
+    {
+      "default": "5",
+      "description": "The Time to Wait",
+      "label": "Wait Time",
+      "name": "wait_time",
+      "required": true
+    }
+  ],
+  "stages": [
+    {
+      "name": "Wait",
+      "refId": "1",
+      "requisiteStageRefIds": [
+        "2"
+      ],
+      "type": "wait",
+      "waitTime": "${parameters['wait_time']}"
+    },
+    {
+      "failPipeline": true,
+      "instructions": "Ok to Wait?",
+      "judgmentInputs": [],
+      "name": "Manual Judgment",
+      "notifications": [],
+      "refId": "2",
+      "requisiteStageRefIds": [],
+      "type": "manualJudgment"
+    }
+  ],
+  "triggers": [],
+  "updateTs": "1554184648000"
+}
