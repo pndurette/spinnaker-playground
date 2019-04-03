@@ -15,7 +15,7 @@ This will guide you to:
   * Rancher [k3s](https://github.com/rancher/k3s) (lighweight Kubernetes)
 * Installing Spinnaker (via the [stable/spinnaker](https://github.com/helm/charts/tree/master/stable/spinnaker) Helm chart)
 
-And optinally:
+And optionally:
 
 * Installing Spinnaker Tools:
   * [Halyard](https://www.spinnaker.io/reference/halyard/) (`hal`), the Spinnaker CLI config tool
