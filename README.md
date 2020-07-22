@@ -70,7 +70,7 @@ multipass copy-files k3s-spin:/etc/rancher/k3s/k3s.yaml $HOME/.kube/k3s-spin.yam
 K3S_IP=$(multipass info k3s-spin --format json | jq -r '.info."k3s-spin".ipv4[0]')
 
 # Replace 'localhost' in kubeconfig with VM IP
-sed -i "s/localhost/${K3S_IP}/g" $HOME/.kube/k3s-spin.yaml
+sed -i "s/127.0.0.1/${K3S_IP}/g" $HOME/.kube/k3s-spin.yaml
 
 # Tell kubectl to use the k3s kubeconfig by default
 export KUBECONFIG=$HOME/.kube/k3s-spin.yaml
@@ -113,7 +113,7 @@ kubectl create ns ${SPIN_NAMESPACE}
 ```bash
 # Install Spinnaker via k3s' HelmChart resource
 cat <<EOF | kubectl create -f -
-apiVersion: k3s.cattle.io/v1
+apiVersion: helm.cattle.io/v1
 kind: HelmChart
 metadata:
   name: spinnaker
